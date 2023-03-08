@@ -8,14 +8,19 @@ import fr.simplon.www.server.IHttpResponse;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Renvoie les paramètres d'une requête dans la réponse.
+ */
 public class EchoRequestParameters extends AbstractHttpRequestHandler
 {
     /**
-     * @param request
-     * @return
+     * Renvoie les paramètres d'une requête dans la réponse.
+     *
+     * @param request Requête.
+     * @return Les paramètres de la requête, formatés en mode 1 param / ligne.
      */
     @Override
-    public IHttpResponse handle(IHttpRequest request, String pDocumentRoot) throws Exception
+    public IHttpResponse handle(IHttpRequest request, String pDocumentRoot)
     {
         String newLine = System.lineSeparator();
         StringBuilder sb = new StringBuilder("<html><body>").append(newLine);

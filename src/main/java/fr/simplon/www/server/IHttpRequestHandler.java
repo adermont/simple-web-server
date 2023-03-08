@@ -1,5 +1,7 @@
 package fr.simplon.www.server;
 
+import java.io.IOException;
+
 /**
  * Interface de traitement de requêtes HTTP.
  */
@@ -13,7 +15,7 @@ public interface IHttpRequestHandler
      * @param pDocumentRoot La racine du répertoire qui contient les documents à servir.
      * @return Une réponse au format HTTP.
      *
-     * @throws Exception
+     * @throws IOException En cas de problème de traitement de la requête.
      */
-    IHttpResponse handle(IHttpRequest pRequest, String pDocumentRoot) throws Exception;
+    IHttpResponse handle(IHttpRequest pRequest, String pDocumentRoot) throws IOException;
 }

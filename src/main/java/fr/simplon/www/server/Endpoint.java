@@ -1,22 +1,24 @@
 package fr.simplon.www.server;
 
+import java.io.IOException;
+
 /**
  * Un endpoint est un point d'entrée du serveur HTTP, accessible à partir d'une URL. Quand un
  * navigateur demande une URL qui correspond à celle d'un endpoint, il est activé et le contenu qui
  * sera renvoyé au navigateur sera le retour de la méthode
- * {@link IHttpRequestHandler#handle(IHttpRequest)}.
+ * {@link IHttpRequestHandler#handle(IHttpRequest, String)}.
  */
 public class Endpoint
 {
-    private String              mUrl;
-    private String              mDocumentRoot;
-    private IHttpRequestHandler mHandler;
+    private       String              mDocumentRoot;
+    private final String              mUrl;
+    private final IHttpRequestHandler mHandler;
 
     /**
      * Le point d'entrée.
      *
-     * @param pUrl
-     * @param pHandler
+     * @param pUrl  L'URL du endpoint.
+     * @param pHandler Le handler qui traite la requête.
      */
     public Endpoint(String pUrl, IHttpRequestHandler pHandler)
     {
@@ -69,9 +71,9 @@ public class Endpoint
      * @param request La requête à traiter.
      * @return Le nouvelle requête.
      *
-     * @throws Exception
+     * @throws IOException En cas de problèmle de traitement de la requête.
      */
-    public IHttpResponse process(IHttpRequest request) throws Exception
+    public IHttpResponse process(IHttpRequest request) throws IOException
     {
         return mHandler.handle(request, mDocumentRoot);
     }

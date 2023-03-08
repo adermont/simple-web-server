@@ -16,7 +16,7 @@ public abstract class AbstractHttpRequestHandler implements IHttpRequestHandler
      * {@inheritDoc}
      */
     @Override
-    public IHttpResponse handle(IHttpRequest pRequest, String pDocumentRoot) throws Exception
+    public IHttpResponse handle(IHttpRequest pRequest, String pDocumentRoot) throws IOException
     {
         return loadResource(pDocumentRoot + pRequest.getUrl());
     }

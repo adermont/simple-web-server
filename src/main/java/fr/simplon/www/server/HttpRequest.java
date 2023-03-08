@@ -9,9 +9,9 @@ import java.util.Scanner;
  */
 public class HttpRequest implements IHttpRequest
 {
-    private HttpMethod          mMethod;
-    private String              mUrl;
-    private Map<String, String> mParams;
+    private final HttpMethod          mMethod;
+    private final String              mUrl;
+    private final Map<String, String> mParams;
 
     /**
      * Constructeur.
@@ -33,6 +33,7 @@ public class HttpRequest implements IHttpRequest
      */
     public HttpRequest(HttpMethod pMethod, String pUrl, String pParamString)
     {
+        super();
         mMethod = pMethod;
         mUrl = pUrl;
         mParams = parseParams(pParamString);
@@ -44,6 +45,7 @@ public class HttpRequest implements IHttpRequest
      */
     public HttpRequest(HttpMethod pMethod, String pUrl, Map<String, String> pParams)
     {
+        super();
         mMethod = pMethod;
         mUrl = pUrl;
         mParams = pParams;
@@ -101,9 +103,9 @@ public class HttpRequest implements IHttpRequest
             {
                 String param = scanner.next();
                 int iEgal = param.indexOf('=');
-                String pName = "";
+                String pName = param;
                 String pValue = "";
-                if (iEgal >= 0 && param.length() > iEgal)
+                if (iEgal >= 0 && param.length() > 2)
                 {
                     pName = param.substring(0, iEgal);
                     pValue = param.substring(iEgal + 1);
@@ -111,12 +113,6 @@ public class HttpRequest implements IHttpRequest
                 else if (iEgal >= 0)
                 {
                     pName = param.substring(0, iEgal);
-                    pValue = "";
-                }
-                else
-                {
-                    pName = param;
-                    pValue = "";
                 }
                 map.put(pName, pValue);
             }
@@ -133,9 +129,9 @@ public class HttpRequest implements IHttpRequest
     public void addParameter(String rawString)
     {
         int iEgal = rawString.indexOf('=');
-        String pName = "";
+        String pName = rawString;
         String pValue = "";
-        if (iEgal >= 0 && rawString.length() > iEgal)
+        if (iEgal >= 0 && rawString.length() > 2)
         {
             pName = rawString.substring(0, iEgal);
             pValue = rawString.substring(iEgal + 1);
@@ -143,12 +139,6 @@ public class HttpRequest implements IHttpRequest
         else if (iEgal >= 0)
         {
             pName = rawString.substring(0, iEgal);
-            pValue = "";
-        }
-        else
-        {
-            pName = rawString;
-            pValue = "";
         }
         mParams.put(pName, pValue);
     }

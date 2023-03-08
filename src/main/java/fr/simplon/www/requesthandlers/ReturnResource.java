@@ -5,6 +5,7 @@ import fr.simplon.www.server.IHttpRequest;
 import fr.simplon.www.server.IHttpResponse;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Retourne le contenu du fichier de ressources demandé dans la requête. Ce fichier doit être dans
@@ -33,7 +34,7 @@ public class ReturnResource extends AbstractHttpRequestHandler
     }
 
     @Override
-    public IHttpResponse handle(IHttpRequest pRequest, String pDocumentRoot) throws Exception
+    public IHttpResponse handle(IHttpRequest pRequest, String pDocumentRoot) throws IOException
     {
         if (mFile != null)
         {
