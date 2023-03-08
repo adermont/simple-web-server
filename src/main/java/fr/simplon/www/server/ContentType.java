@@ -71,16 +71,21 @@ public enum ContentType
     APPLICATION_VND_OPENXMLFORMATS_OFFICEDOCUMENT_WORDPROCESSINGML_DOCUMENT("application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
     APPLICATION_VND_MOZILLA_XUL_XML("application/vnd.mozilla.xul+xml");
 
-    private String text;
+    private final String text;
 
-    private ContentType(String pText)
+    ContentType(String pText)
     {
         this.text = pText;
+    }
+
+    public String toHttpString()
+    {
+        return "Content-Type: " + text;
     }
 
     @Override
     public String toString()
     {
-        return "Content-Type: " + text;
+        return toHttpString();
     }
 }

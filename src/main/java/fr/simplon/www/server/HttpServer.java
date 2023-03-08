@@ -10,7 +10,7 @@ import java.util.Scanner;
 /**
  * Classe principale permettant de lancer un serveur HTTP. Exemple d'utilisation :
  * <pre>
- *     HttpServerserver = new HttpServer();
+ *     HttpServer server = new HttpServer();
  *     server.addEndpoint(new Endpoint("/", new RedirectToHomepage()));
  *     server.addEndpoint(new Endpoint("/echo", new EchoRequestParameters()));
  *     server.listen();
@@ -37,13 +37,15 @@ public class HttpServer
 
     /**
      * Constructeur.
+     *
+     * @param pDocumentRoot Racine des fichiers servis par le serveur.
      */
     public HttpServer(String pDocumentRoot)
     {
         super();
+        mIsRunning = false;
         mEndpoints = new HttpServerEndpoints();
         mDocumentRoot = pDocumentRoot;
-        mIsRunning = false;
     }
 
     /**
@@ -107,7 +109,6 @@ public class HttpServer
      */
     private void acceptConnection(Socket connection)
     {
-        String newLine = System.lineSeparator();
         PrintStream out = null;
         try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream())))
         {
@@ -117,9 +118,13 @@ public class HttpServer
             String request = in.readLine();
             if (request != null)
             {
-                if (!(request.endsWith(" HTTP/1.0") || request.endsWith(" HTTP/1.1") || request.endsWith(" HTTP/2.0")))
+                String protocolVersion = request.substring(request.lastIndexOf(' ') + 1);
+                Optional<HttpVersion> supportedVersion = HttpVersion.from(protocolVersion);
+
+                if (supportedVersion.isEmpty())
                 {
-                    out.println("HTTP/1.1 400 Bad Request" + newLine);
+                    HttpResponse error = HttpResponse.error(HttpResponseStatus.HTTP_400_BAD_REQUEST, request);
+                    out.println(error.toHttpString());
                 }
                 else
                 {
@@ -194,7 +199,8 @@ public class HttpServer
                     // Read the request body
                     char[] read = new char[contentLength];
                     int count = in.read(read, 0, contentLength);
-                    if ( count < contentLength) {
+                    if (count < contentLength)
+                    {
                         logger.log(System.Logger.Level.TRACE, "EOF prématuré de la requête");
                     }
                     content = new String(read, 0, count);
@@ -244,7 +250,7 @@ public class HttpServer
             }
             HttpRequest httpRequest = new HttpRequest(method, url, paramString);
 
-            if (pBody!=null)
+            if (pBody != null)
             {
                 try (Scanner bodyScanner = new Scanner(pBody))
                 {

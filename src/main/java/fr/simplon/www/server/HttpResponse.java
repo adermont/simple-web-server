@@ -1,9 +1,11 @@
 package fr.simplon.www.server;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Une réponse HTTP avec des paramètres et un body.
@@ -50,6 +52,14 @@ public class HttpResponse implements IHttpResponse
         else if ("svg".equalsIgnoreCase(pFileExtension))
         {
             return imageSvg(content);
+        }
+        else if ("json".equalsIgnoreCase(pFileExtension))
+        {
+            return json(content);
+        }
+        else if ("xml".equalsIgnoreCase(pFileExtension))
+        {
+            return textXml(content);
         }
         return textPlain(content);
     }
@@ -100,6 +110,28 @@ public class HttpResponse implements IHttpResponse
     public static IHttpResponse textCss(String pContent)
     {
         return new HttpResponse(ContentType.TEXT_CSS, pContent);
+    }
+
+    /**
+     * Crée une nouvelle réponse au format text/xml.
+     *
+     * @param pContent Contenu de la réponse.
+     * @return La réponse au format XML.
+     */
+    public static IHttpResponse textXml(String pContent)
+    {
+        return new HttpResponse(ContentType.TEXT_XML, pContent);
+    }
+
+    /**
+     * Crée une nouvelle réponse au format text/csv.
+     *
+     * @param pContent Contenu de la réponse.
+     * @return La réponse au format CSV.
+     */
+    public static IHttpResponse textCsv(String pContent)
+    {
+        return new HttpResponse(ContentType.TEXT_CSV, pContent);
     }
 
     /**
@@ -168,12 +200,25 @@ public class HttpResponse implements IHttpResponse
         return new HttpResponse(ContentType.IMAGE_SVG_XML, pContent);
     }
 
+    /**
+     * Crée une nouvelle réponse au format application/json.
+     *
+     * @param pContent Contenu de la réponse.
+     * @return La réponse au format application/json.
+     */
+    public static IHttpResponse json(String pContent)
+    {
+        return new HttpResponse(ContentType.APPLICATION_JSON, pContent);
+    }
+
     // --------------------------------------------------------------
 
-    private Map<String, String> mParams;
-    private ContentType         mContentType;
-    private StringBuilder       mBody;
-    private HttpResponseStatus  mStatus;
+    private final Map<String, String> mParams;
+    private       ContentType         mContentType;
+    private final StringBuilder       mBody;
+    private       HttpResponseStatus  mStatus;
+    private final Charset             mCharset;
+    private final HttpVersion         mHttpVersion;
 
     /**
      * Constructeur.
@@ -186,15 +231,53 @@ public class HttpResponse implements IHttpResponse
     /**
      * Constructeur.
      *
-     * @param pContentType
-     * @param pBody
+     * @param pContentType Type de contenu.
+     * @param pBody        Corps de la réponse.
      */
     public HttpResponse(ContentType pContentType, String pBody)
     {
+        this(pContentType, pBody, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Constructeur où on peut modifier le charset.
+     *
+     * @param pContentType Type de contenu.
+     * @param pBody        Corps de la réponse.
+     * @param pCharset     Jeu de caractères.
+     */
+    public HttpResponse(ContentType pContentType, String pBody, Charset pCharset)
+    {
+        this(pContentType, pBody, pCharset, HttpVersion.HTTP_1_1);
+    }
+
+    /**
+     * Constructeur où on peut modifier le charset.
+     *
+     * @param pContentType Type de contenu.
+     * @param pBody        Corps de la réponse.
+     * @param pCharset     Jeu de caractères.
+     * @param pVersion     Version du protocole HTTP.
+     */
+    public HttpResponse(
+            ContentType pContentType, String pBody, Charset pCharset, HttpVersion pVersion)
+    {
         mParams = new HashMap<>();
         mBody = new StringBuilder();
+        mStatus = HttpResponseStatus.HTTP_200_OK;
         mBody.append(pBody);
-        mContentType = pContentType;
+        mContentType = Optional.ofNullable(pContentType).orElse(ContentType.TEXT_PLAIN);
+        mCharset = Optional.ofNullable(pCharset).orElse(StandardCharsets.UTF_8);
+        mHttpVersion = Optional.ofNullable(pVersion).orElse(HttpVersion.HTTP_1_1);
+    }
+
+    /**
+     * Efface les paramètres, le statut le contenu du body.
+     */
+    public void clear()
+    {
+        mParams.clear();
+        mBody.delete(0, mBody.length());
         mStatus = HttpResponseStatus.HTTP_200_OK;
     }
 
@@ -207,7 +290,10 @@ public class HttpResponse implements IHttpResponse
     @Override
     public void setParam(String pName, String pValue)
     {
-        mParams.put(pName, pValue);
+        if (pName != null && !pName.contains(":") && !pName.equals("ContentType"))
+        {
+            mParams.put(pName, pValue);
+        }
     }
 
     /**
@@ -246,16 +332,21 @@ public class HttpResponse implements IHttpResponse
     public String toHttpString()
     {
         String newLine = System.lineSeparator();
-        StringBuilder sb = new StringBuilder(String.format("HTTP/1.0 %d %s", mStatus.getCode(), mStatus.getMessage())).append(newLine);
+        StringBuilder sb = new StringBuilder(String.format("%s %d %s", mHttpVersion.toHttpString(), mStatus.getCode(), mStatus.getMessage())).append(newLine);
 
-        sb.append(mContentType.toString()).append("; charset=UTF-8").append(newLine);
-        sb.append("Date: " + new Date().toString() + newLine);
+        sb.append(mContentType.toHttpString()).append("; charset=").append(mCharset.name()).append(newLine);
+        sb.append("Date: ").append(new Date()).append(newLine);
 
         String body = mBody.toString();
-        sb.append("Content-length: ");
-
         byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
-        sb.append(bytes.length).append(newLine).append(newLine).append(body);
+        sb.append("Content-length: ").append(bytes.length);
+
+        for (Map.Entry<String, String> params : mParams.entrySet())
+        {
+            sb.append(String.format("%s=%s%n", params.getKey(), params.getValue()));
+        }
+
+        sb.append(newLine).append(newLine).append(body);
         return sb.toString();
     }
 }
