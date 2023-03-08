@@ -1,5 +1,9 @@
 package fr.simplon.www.server;
 
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Map;
+
 /**
  * Une réponse au format HTTP.
  */
@@ -7,26 +11,41 @@ public interface IHttpResponse
 {
     /**
      * Modifie un paramètre d'entête.
-     * @param pName
-     * @param pValue
+     *
+     * @param pName  Nom du paramètre.
+     * @param pValue Valeur du paramètre.
      */
     void setParam(String pName, String pValue);
 
     /**
-     * Modifie le corps de la réponse HTTP.
-     * @param pContentType Type de contenu.
-     * @param pBody Corps de la réponse.
+     * @return Les paramètres HTTP de la réponse.
      */
-    void setBody(ContentType pContentType, String pBody);
+    Map<String, String> getParams();
+
+    /**
+     * Modifie le corps de la réponse HTTP.
+     *
+     * @param pContentType Type de contenu.
+     * @param pBody        Corps de la réponse.
+     */
+    void setBody(ContentType pContentType, byte[] pBody);
 
     /**
      * Modifie le statut de la réponse.
+     *
      * @param pStatus le nouveau statut de la réponse.
      */
     void setStatus(HttpResponseStatus pStatus);
 
     /**
-     * @return la réponse au format HTTP.
+     * @return Le status de la réponse.
      */
-    String toHttpString();
+    HttpResponseStatus getStatus();
+
+    /**
+     * Ecrit la réponse au format HTTP dans un flux sortant.
+     *
+     * @param out Le flux de sortie.
+     */
+    void writeTo(PrintStream out) throws IOException;
 }

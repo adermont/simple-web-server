@@ -1,4 +1,6 @@
-package fr.simplon.www.server;
+package fr.simplon.www.requesthandlers;
+
+import fr.simplon.www.server.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,7 +12,7 @@ import java.io.InputStream;
  */
 public abstract class AbstractHttpRequestHandler implements IHttpRequestHandler
 {
-    private static System.Logger logger = System.getLogger(AbstractHttpRequestHandler.class.getName());
+    private static final System.Logger logger = System.getLogger(AbstractHttpRequestHandler.class.getName());
 
     /**
      * {@inheritDoc}
@@ -30,7 +32,7 @@ public abstract class AbstractHttpRequestHandler implements IHttpRequestHandler
      * @return La réponse HTTP (ContentType=text/html) dont le corps est le contenu du fichier
      *         HTML.
      *
-     * @throws Exception En cas de problème de lecture du fichier.
+     * @throws IOException En cas de problème de lecture du fichier.
      */
     protected IHttpResponse loadResource(String resourceUrl) throws IOException
     {
@@ -38,7 +40,7 @@ public abstract class AbstractHttpRequestHandler implements IHttpRequestHandler
         {
             if (stream != null)
             {
-                String content = new String(stream.readAllBytes());
+                byte[] content = stream.readAllBytes();
                 return toResponse(content, resourceUrl);
             }
             File file = new File(resourceUrl);
@@ -47,7 +49,7 @@ public abstract class AbstractHttpRequestHandler implements IHttpRequestHandler
                 return loadFile(file);
             }
             logger.log(System.Logger.Level.TRACE, "Fichier introuvable : {0}", resourceUrl);
-            return HttpResponse.error(HttpResponseStatus.HTTP_404_NOT_FOUND, resourceUrl);
+            return HttpResponse.error(HttpResponseStatus.HTTP_404_NOT_FOUND, resourceUrl.getBytes());
         }
     }
 
@@ -59,7 +61,7 @@ public abstract class AbstractHttpRequestHandler implements IHttpRequestHandler
      * @return La réponse HTTP (ContentType=text/html) dont le corps est le contenu du fichier
      *         HTML.
      *
-     * @throws Exception En cas de problème de lecture du fichier.
+     * @throws IOException En cas de problème de lecture du fichier.
      */
     protected IHttpResponse loadFile(File pFile) throws IOException
     {
@@ -68,13 +70,14 @@ public abstract class AbstractHttpRequestHandler implements IHttpRequestHandler
             try (InputStream stream = new FileInputStream(pFile))
             {
 
-                String content = new String(stream.readAllBytes());
+                byte[] content = stream.readAllBytes();
                 return toResponse(content, pFile.getPath());
             }
         }
-        else {
+        else
+        {
             logger.log(System.Logger.Level.TRACE, "Fichier introuvable : {0}", pFile);
-            return HttpResponse.error(HttpResponseStatus.HTTP_404_NOT_FOUND, pFile.getPath());
+            return HttpResponse.error(HttpResponseStatus.HTTP_404_NOT_FOUND, pFile.getPath().getBytes());
         }
     }
 
@@ -85,7 +88,7 @@ public abstract class AbstractHttpRequestHandler implements IHttpRequestHandler
      * @param resourceUrl URL de la ressource demandée.
      * @return Une HttpResponse dont le content-type correspond à l'extension de fichier demandé.
      */
-    protected IHttpResponse toResponse(String content, String resourceUrl)
+    protected IHttpResponse toResponse(byte[] content, String resourceUrl)
     {
         int indexOfDot = resourceUrl.lastIndexOf('.') + 1;
         if (indexOfDot > 0)

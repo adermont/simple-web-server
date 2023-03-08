@@ -1,5 +1,7 @@
 package fr.simplon.www.server;
 
+import fr.simplon.www.requesthandlers.ForbiddenResource;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,9 +10,9 @@ import java.util.Map;
  */
 public class HttpServerEndpoints
 {
-    private Map<String, Endpoint> mEndpoints;
+    private final Map<String, Endpoint> mEndpoints;
 
-    private Endpoint mFalldown;
+    private final Endpoint mFalldown;
 
     /**
      * Constructeur.
@@ -18,7 +20,7 @@ public class HttpServerEndpoints
     public HttpServerEndpoints()
     {
         mEndpoints = new HashMap<>();
-        mFalldown = new Endpoint("", new AbstractHttpRequestHandler() {});
+        mFalldown = new Endpoint("", new ForbiddenResource());
     }
 
     /**

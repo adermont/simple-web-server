@@ -1,6 +1,5 @@
 package fr.simplon.www.requesthandlers;
 
-import fr.simplon.www.server.AbstractHttpRequestHandler;
 import fr.simplon.www.server.HttpResponse;
 import fr.simplon.www.server.IHttpRequest;
 import fr.simplon.www.server.IHttpResponse;
@@ -33,6 +32,6 @@ public class EchoRequestParameters extends AbstractHttpRequestHandler
         }
         sb.append("<p><a href=\"/\">&lt;&lt; Revenir à l'accueil</a></p>").append(newLine);
         sb.append("</body></html>").append(newLine);
-        return HttpResponse.textHtml(sb.toString());
+        return HttpResponse.textHtml(sb.toString().getBytes());
     }
 }

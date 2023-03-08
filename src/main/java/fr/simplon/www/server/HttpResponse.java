@@ -1,5 +1,7 @@
 package fr.simplon.www.server;
 
+import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -19,7 +21,7 @@ public class HttpResponse implements IHttpResponse
      * @param content        Contenu du fichier.
      * @return Une réponse HTTP dont le content-type correspond à l'extension de fichier fournie.
      */
-    public static IHttpResponse fromFileExtension(String pFileExtension, String content)
+    public static IHttpResponse fromFileExtension(String pFileExtension, byte[] content)
     {
         if (("htm").equalsIgnoreCase(pFileExtension) || "html".equalsIgnoreCase(pFileExtension))
         {
@@ -41,7 +43,7 @@ public class HttpResponse implements IHttpResponse
         {
             return imageTiff(content);
         }
-        else if ("jpeg".equalsIgnoreCase(pFileExtension))
+        else if ("jpg".equalsIgnoreCase(pFileExtension) || "jpeg".equalsIgnoreCase(pFileExtension))
         {
             return imageJpeg(content);
         }
@@ -70,7 +72,7 @@ public class HttpResponse implements IHttpResponse
      * @param pContent Contenu de la réponse en texte brut.
      * @return Un objet HttpResponse.
      */
-    public static HttpResponse textPlain(String pContent)
+    public static IHttpResponse textPlain(byte[] pContent)
     {
         return new HttpResponse(ContentType.TEXT_PLAIN, pContent);
     }
@@ -83,7 +85,7 @@ public class HttpResponse implements IHttpResponse
      * @param url     L'URL de la requête qui a échoué.
      * @return Un objet HttpResponse.
      */
-    public static HttpResponse error(HttpResponseStatus errCode, String url)
+    public static IHttpResponse error(HttpResponseStatus errCode, byte[] url)
     {
         HttpResponse response = new HttpResponse(ContentType.TEXT_PLAIN, url);
         response.setStatus(errCode);
@@ -96,7 +98,7 @@ public class HttpResponse implements IHttpResponse
      * @param pContent Contenu de la réponse.
      * @return La réponse au format HTML.
      */
-    public static IHttpResponse textHtml(String pContent)
+    public static IHttpResponse textHtml(byte[] pContent)
     {
         return new HttpResponse(ContentType.TEXT_HTML, pContent);
     }
@@ -107,7 +109,7 @@ public class HttpResponse implements IHttpResponse
      * @param pContent Contenu de la réponse.
      * @return La réponse au format CSS.
      */
-    public static IHttpResponse textCss(String pContent)
+    public static IHttpResponse textCss(byte[] pContent)
     {
         return new HttpResponse(ContentType.TEXT_CSS, pContent);
     }
@@ -118,7 +120,7 @@ public class HttpResponse implements IHttpResponse
      * @param pContent Contenu de la réponse.
      * @return La réponse au format XML.
      */
-    public static IHttpResponse textXml(String pContent)
+    public static IHttpResponse textXml(byte[] pContent)
     {
         return new HttpResponse(ContentType.TEXT_XML, pContent);
     }
@@ -129,7 +131,7 @@ public class HttpResponse implements IHttpResponse
      * @param pContent Contenu de la réponse.
      * @return La réponse au format CSV.
      */
-    public static IHttpResponse textCsv(String pContent)
+    public static IHttpResponse textCsv(byte[] pContent)
     {
         return new HttpResponse(ContentType.TEXT_CSV, pContent);
     }
@@ -140,7 +142,7 @@ public class HttpResponse implements IHttpResponse
      * @param pContent Contenu de la réponse.
      * @return La réponse au format image/png.
      */
-    public static IHttpResponse imagePng(String pContent)
+    public static IHttpResponse imagePng(byte[] pContent)
     {
         return new HttpResponse(ContentType.IMAGE_PNG, pContent);
     }
@@ -151,7 +153,7 @@ public class HttpResponse implements IHttpResponse
      * @param pContent Contenu de la réponse.
      * @return La réponse au format image/jpeg.
      */
-    public static IHttpResponse imageJpeg(String pContent)
+    public static IHttpResponse imageJpeg(byte[] pContent)
     {
         return new HttpResponse(ContentType.IMAGE_JPEG, pContent);
     }
@@ -162,7 +164,7 @@ public class HttpResponse implements IHttpResponse
      * @param pContent Contenu de la réponse.
      * @return La réponse au format image/tiff.
      */
-    public static IHttpResponse imageTiff(String pContent)
+    public static IHttpResponse imageTiff(byte[] pContent)
     {
         return new HttpResponse(ContentType.IMAGE_TIFF, pContent);
     }
@@ -173,7 +175,7 @@ public class HttpResponse implements IHttpResponse
      * @param pContent Contenu de la réponse.
      * @return La réponse au format image/gif.
      */
-    public static IHttpResponse imageGif(String pContent)
+    public static IHttpResponse imageGif(byte[] pContent)
     {
         return new HttpResponse(ContentType.IMAGE_GIF, pContent);
     }
@@ -184,7 +186,7 @@ public class HttpResponse implements IHttpResponse
      * @param pContent Contenu de la réponse.
      * @return La réponse au format image/x-icon.
      */
-    public static IHttpResponse imageXIcon(String pContent)
+    public static IHttpResponse imageXIcon(byte[] pContent)
     {
         return new HttpResponse(ContentType.IMAGE_X_ICON, pContent);
     }
@@ -195,7 +197,7 @@ public class HttpResponse implements IHttpResponse
      * @param pContent Contenu de la réponse.
      * @return La réponse au format image/svg.
      */
-    public static IHttpResponse imageSvg(String pContent)
+    public static IHttpResponse imageSvg(byte[] pContent)
     {
         return new HttpResponse(ContentType.IMAGE_SVG_XML, pContent);
     }
@@ -206,26 +208,26 @@ public class HttpResponse implements IHttpResponse
      * @param pContent Contenu de la réponse.
      * @return La réponse au format application/json.
      */
-    public static IHttpResponse json(String pContent)
+    public static IHttpResponse json(byte[] pContent)
     {
         return new HttpResponse(ContentType.APPLICATION_JSON, pContent);
     }
 
     // --------------------------------------------------------------
 
-    private final Map<String, String> mParams;
-    private       ContentType         mContentType;
-    private final StringBuilder       mBody;
+    private final HttpVersion         mHttpVersion;
     private       HttpResponseStatus  mStatus;
     private final Charset             mCharset;
-    private final HttpVersion         mHttpVersion;
+    private       ContentType         mContentType;
+    private final Map<String, String> mParams;
+    private       byte[]              mBody;
 
     /**
      * Constructeur.
      */
     public HttpResponse()
     {
-        this(ContentType.TEXT_PLAIN, "");
+        this(ContentType.TEXT_PLAIN, new byte[0]);
     }
 
     /**
@@ -234,7 +236,7 @@ public class HttpResponse implements IHttpResponse
      * @param pContentType Type de contenu.
      * @param pBody        Corps de la réponse.
      */
-    public HttpResponse(ContentType pContentType, String pBody)
+    public HttpResponse(ContentType pContentType, byte[] pBody)
     {
         this(pContentType, pBody, StandardCharsets.UTF_8);
     }
@@ -246,7 +248,7 @@ public class HttpResponse implements IHttpResponse
      * @param pBody        Corps de la réponse.
      * @param pCharset     Jeu de caractères.
      */
-    public HttpResponse(ContentType pContentType, String pBody, Charset pCharset)
+    public HttpResponse(ContentType pContentType, byte[] pBody, Charset pCharset)
     {
         this(pContentType, pBody, pCharset, HttpVersion.HTTP_1_1);
     }
@@ -260,12 +262,11 @@ public class HttpResponse implements IHttpResponse
      * @param pVersion     Version du protocole HTTP.
      */
     public HttpResponse(
-            ContentType pContentType, String pBody, Charset pCharset, HttpVersion pVersion)
+            ContentType pContentType, byte[] pBody, Charset pCharset, HttpVersion pVersion)
     {
         mParams = new HashMap<>();
-        mBody = new StringBuilder();
         mStatus = HttpResponseStatus.HTTP_200_OK;
-        mBody.append(pBody);
+        mBody = pBody;
         mContentType = Optional.ofNullable(pContentType).orElse(ContentType.TEXT_PLAIN);
         mCharset = Optional.ofNullable(pCharset).orElse(StandardCharsets.UTF_8);
         mHttpVersion = Optional.ofNullable(pVersion).orElse(HttpVersion.HTTP_1_1);
@@ -277,7 +278,7 @@ public class HttpResponse implements IHttpResponse
     public void clear()
     {
         mParams.clear();
-        mBody.delete(0, mBody.length());
+        mBody = null;
         mStatus = HttpResponseStatus.HTTP_200_OK;
     }
 
@@ -297,16 +298,25 @@ public class HttpResponse implements IHttpResponse
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<String, String> getParams()
+    {
+        return mParams;
+    }
+
+    /**
      * Modifie le corps de la réponse.
      *
      * @param pContentType Le type de contenu du body.
      * @param pBody        Le body de la réponse.
      */
     @Override
-    public void setBody(ContentType pContentType, String pBody)
+    public void setBody(ContentType pContentType, byte[] pBody)
     {
         mContentType = pContentType;
-        mBody.delete(0, mBody.length());
+        mBody = pBody;
     }
 
     /**
@@ -319,34 +329,52 @@ public class HttpResponse implements IHttpResponse
         mStatus = pStatus;
     }
 
-    /**
-     * Ajoute du contenu dans le corps de la réponse, à la suite.
-     *
-     * @param pString Nouveau contenu à ajouter.
-     */
-    public void append(String pString)
+    @Override
+    public HttpResponseStatus getStatus()
     {
-        mBody.append(pString);
+        return mStatus;
     }
 
-    public String toHttpString()
+    /**
+     * Ecrit la réponse dans un flux de sortie au format HTTP, y compris les deux lignes vide de
+     * terminaison.
+     */
+    public void writeTo(PrintStream out) throws IOException
     {
-        String newLine = System.lineSeparator();
-        StringBuilder sb = new StringBuilder(String.format("%s %d %s", mHttpVersion.toHttpString(), mStatus.getCode(), mStatus.getMessage())).append(newLine);
+        out.printf("%s %d %s%n", mHttpVersion.toHttpString(), mStatus.getCode(), mStatus.getMessage());
 
-        sb.append(mContentType.toHttpString()).append("; charset=").append(mCharset.name()).append(newLine);
-        sb.append("Date: ").append(new Date()).append(newLine);
+        // ContentType
+        out.print(mContentType.toHttpString());
 
-        String body = mBody.toString();
-        byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
-        sb.append("Content-length: ").append(bytes.length);
+        // Si c'est du texte on ajoute une directive pour le charset
+        if (ContentType.texts().contains(mContentType))
+        {
+            out.printf("; charset=%s", mCharset.name());
+        }
+        out.println();
 
+        // Date
+        out.printf("Date: %s%n", new Date());
+
+        // Content-Length
+        out.printf("Content-length: %d", mBody.length);
+
+        // Other parameters
         for (Map.Entry<String, String> params : mParams.entrySet())
         {
-            sb.append(String.format("%s=%s%n", params.getKey(), params.getValue()));
+            out.printf("%s=%s%n", params.getKey(), params.getValue());
         }
 
-        sb.append(newLine).append(newLine).append(body);
-        return sb.toString();
+        // Body
+        out.printf("%n%n");
+        if (ContentType.texts().contains(mContentType))
+        {
+            String body = new String(mBody);
+            out.print(body);
+        }
+        else
+        {
+            out.write(mBody);
+        }
     }
 }

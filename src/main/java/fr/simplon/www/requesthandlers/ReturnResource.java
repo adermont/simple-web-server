@@ -1,6 +1,5 @@
 package fr.simplon.www.requesthandlers;
 
-import fr.simplon.www.server.AbstractHttpRequestHandler;
 import fr.simplon.www.server.IHttpRequest;
 import fr.simplon.www.server.IHttpResponse;
 
@@ -18,7 +17,8 @@ public class ReturnResource extends AbstractHttpRequestHandler
     /**
      * Constructeur.
      */
-    public ReturnResource(){
+    public ReturnResource()
+    {
         super();
     }
 
@@ -36,9 +36,14 @@ public class ReturnResource extends AbstractHttpRequestHandler
     @Override
     public IHttpResponse handle(IHttpRequest pRequest, String pDocumentRoot) throws IOException
     {
+        File target = new File(pDocumentRoot, pRequest.getUrl());
         if (mFile != null)
         {
-            return loadFile(new File(pDocumentRoot, mFile));
+            target = new File(pDocumentRoot, mFile);
+        }
+        if (target.exists())
+        {
+            return loadFile(target);
         }
         return loadResource(pRequest.getUrl());
     }

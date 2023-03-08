@@ -3,29 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>Simple Web Server</title>
+    <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-<h1>Bienvenue</h1>
-Vous êtes sur la page de démonstration du serveur HTTP le plus simple du monde.
-<p>
-    Des paramètres sont cachés dans un formulaire de cette page.<br/>
-    En cliquant sur TEST vous les enverrez au serveur et il vous les retournera dans une nouvelle page HTML.
-</p>
-<p>
-    Vous pouvez également cliquer sur ce <a href="#" onclick="document.test.submit()">lien</a> pour envoyer le
-    formulaire.
-</p>
-<div>
-    <form name="test" action="/echo" method="post" enctype="application/x-www-form-urlencoded">
-        <input type="hidden" name="param1" value="Bonjour"/>
-        <input type="hidden" name="param2" value="Tout le monde !"/>
-        <button type="button" onclick="document.test.submit()">TEST</button>
-    </form>
+<div id="all">
+    <div id="left-pane">
+        <h1>Simple Web Server</h1>
+        <img id="logo" src="logo.png"/>
+    </div>
+    <div id="main-pane">
+        <h1>Bienvenue</h1>
+        Vous êtes sur la page de démonstration du serveur HTTP le plus simple du monde.
+        <p>
+            Des paramètres sont cachés dans un formulaire de cette page.<br/>
+            En cliquant sur ECHO vous les enverrez sur le endpoint "/echo" et il vous les retournera au format HTML.
+        </p>
+        <p>
+            Vous pouvez également cliquer sur ce <a href="#" onclick="document.test.submit()">lien</a> pour envoyer le
+            formulaire.
+        </p>
+        <div>
+            <form name="test" action="/echo" method="post" enctype="application/x-www-form-urlencoded">
+                <input type="hidden" name="param1" value="Bonjour"/>
+                <input type="hidden" name="param2" value="Tout le monde !"/>
+                <button type="button" onclick="document.test.submit()">ECHO</button>
+            </form>
+        </div>
+        <p>Avez-vous remarqué l'icône (un peu pourrie) sur l'onglet du navigateur ?<br/>
+            Elle correspond au fichier 'favicon.ico' du répertoire html. Tous les
+            sites Internet "modernes" en ont une mais parfois on oublie ce fichier
+            et le navigateur affiche une icone par défaut à la place.
+        </p>
+    </div>
 </div>
-<p>Avez-vous remarqué l'icône (un peu pourrie) sur l'onglet du navigateur ?<br/>
-    Elle correspond au fichier 'favicon.ico' du répertoire html. Tous les
-    sites Internet "modernes" en ont une mais parfois on oublie ce fichier
-    et le navigateur affiche une icone par défaut à la place.
-</p>
 </body>
 </html>

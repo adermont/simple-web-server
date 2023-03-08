@@ -88,6 +88,7 @@ public class HttpServer
         try (ServerSocket socket = new ServerSocket(port))
         {
             mIsRunning = true;
+            logger.log(System.Logger.Level.INFO, "[STARTED] En écoute sur le port {0} ...", String.valueOf(socket.getLocalPort()));
             while (mIsRunning)
             {
                 acceptConnection(socket.accept());
@@ -112,6 +113,8 @@ public class HttpServer
         PrintStream out = null;
         try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream())))
         {
+            logger.log(System.Logger.Level.TRACE, "[CONNECT] Nouvelle connexion : {0}", String.valueOf(connection.getInetAddress()));
+
             out = new PrintStream(new BufferedOutputStream(connection.getOutputStream()), true, StandardCharsets.UTF_8);
 
             // read first line of request
@@ -123,11 +126,13 @@ public class HttpServer
 
                 if (supportedVersion.isEmpty())
                 {
-                    HttpResponse error = HttpResponse.error(HttpResponseStatus.HTTP_400_BAD_REQUEST, request);
-                    out.println(error.toHttpString());
+                    logger.log(System.Logger.Level.ERROR, "Version HTTP non supportée : '{0}'", protocolVersion);
+                    IHttpResponse error = HttpResponse.error(HttpResponseStatus.HTTP_400_BAD_REQUEST, request.getBytes());
+                    error.writeTo(out);
                 }
                 else
                 {
+                    logger.log(System.Logger.Level.DEBUG, "{0}", request);
                     processValidRequest(in, out, request);
                 }
             }
@@ -135,12 +140,6 @@ public class HttpServer
         catch (Exception tri)
         {
             logger.log(System.Logger.Level.ERROR, "Erreur fatale", tri);
-        } finally
-        {
-            if (out != null)
-            {
-                out.close();
-            }
         }
     }
 
@@ -155,21 +154,20 @@ public class HttpServer
     private void processValidRequest(BufferedReader pIn, PrintStream pOut, String pRawRequest)
             throws IOException
     {
-        String newLine = System.lineSeparator();
-
         // Read pRawRequest header and pRawRequest body
         Optional<String> content = getRequestBody(pIn);
+        IHttpResponse response = null;
         try
         {
-            IHttpResponse response = process(pRawRequest, content.orElse(""));
-            pOut.print(response.toHttpString());
+            response = process(pRawRequest, content.orElse(""));
         }
         catch (Exception e)
         {
-            logger.log(System.Logger.Level.ERROR, "Erreur de traitement de la requête '{0}'", pRawRequest, e);
-            pOut.print("HTTP/1.0 500 Server error" + newLine + newLine);
+            response = HttpResponse.error(HttpResponseStatus.HTTP_500_INTERNAL_SERVER_ERROR, pRawRequest.getBytes());
             e.printStackTrace(pOut);
         }
+        logger.log(System.Logger.Level.DEBUG, "{0} ==> {1}", pRawRequest, response.getStatus().toHttpString());
+        response.writeTo(pOut);
     }
 
     /**

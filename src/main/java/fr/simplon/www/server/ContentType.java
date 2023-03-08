@@ -1,5 +1,8 @@
 package fr.simplon.www.server;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 /**
  * Types de contenus définis par le protocole HTTP.
  */
@@ -87,5 +90,24 @@ public enum ContentType
     public String toString()
     {
         return toHttpString();
+    }
+
+    /**
+     * @return Tous les types images reconnus.
+     */
+    public static Collection<ContentType> images()
+    {
+        return Arrays.asList(IMAGE_GIF, IMAGE_JPEG, IMAGE_PNG, IMAGE_TIFF, IMAGE_X_ICON, IMAGE_SVG_XML, IMAGE_VND_DJVU, IMAGE_VND_MICROSOFT_ICON);
+    }
+
+    /**
+     * Retourne les types de contenus qui sont du texte (nécessitant d'ajouter un encodage dans la
+     * directive HTTP "ContentType:...; charset=").
+     *
+     * @return Une collection de ContentTypes de type texte (PLAIN, HTML, CSV, XML, JSON, JAVASCRIPT...).
+     */
+    public static Collection<ContentType> texts()
+    {
+        return Arrays.asList(TEXT_PLAIN, TEXT_CSS, TEXT_CSV, TEXT_HTML, TEXT_XML, APPLICATION_JSON, APPLICATION_JAVASCRIPT);
     }
 }

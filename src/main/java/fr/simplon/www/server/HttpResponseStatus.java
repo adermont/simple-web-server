@@ -78,10 +78,10 @@ public enum HttpResponseStatus
 
     HTTP_511_NETWORK_AUTHENTICATION_REQUIRED(511, "Network Authentication Required");    //[RFC6585]
 
-    private int    mCode;
-    private String mMessage;
+    private final int    mCode;
+    private final String mMessage;
 
-    private HttpResponseStatus(int pCode, String pMessage)
+    HttpResponseStatus(int pCode, String pMessage)
     {
         mCode = pCode;
         mMessage = pMessage;
@@ -100,5 +100,16 @@ public enum HttpResponseStatus
     public static HttpResponseStatus from(int code)
     {
         return Arrays.stream(HttpResponseStatus.values()).filter(e -> e.mCode == code).findAny().orElseThrow();
+    }
+
+    public String toHttpString()
+    {
+        return String.format("%d %s", getCode(), getMessage());
+    }
+
+    @Override
+    public String toString()
+    {
+        return toHttpString();
     }
 }

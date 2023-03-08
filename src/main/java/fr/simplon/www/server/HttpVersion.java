@@ -22,6 +22,12 @@ public enum HttpVersion
         return mVersion;
     }
 
+    @Override
+    public String toString()
+    {
+        return toHttpString();
+    }
+
     public static Optional<HttpVersion> from(String sProtocolVersion)
     {
         return Arrays.stream(HttpVersion.values()).filter(v -> v.toHttpString().equals(sProtocolVersion)).findAny();
