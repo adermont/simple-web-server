@@ -1,9 +1,8 @@
 package fr.simplon.www;
 
 import fr.simplon.www.requesthandlers.EchoRequestParameters;
-import fr.simplon.www.requesthandlers.RedirectToHomepage;
+import fr.simplon.www.requesthandlers.ReturnResource;
 import fr.simplon.www.server.Endpoint;
-import fr.simplon.www.server.HttpResponse;
 import fr.simplon.www.server.HttpServer;
 
 /**
@@ -14,8 +13,8 @@ public class DemoWebApp
 {
     public static void main(String[] args)
     {
-        HttpServer mServer = new HttpServer();
-        mServer.addEndpoint(new Endpoint("/", new RedirectToHomepage()));
+        HttpServer mServer = new HttpServer("src/test/html");
+        mServer.addEndpoint(new Endpoint("/", new ReturnResource("index.html")));
         mServer.addEndpoint(new Endpoint("/echo", new EchoRequestParameters()));
         mServer.listen(8080);
     }

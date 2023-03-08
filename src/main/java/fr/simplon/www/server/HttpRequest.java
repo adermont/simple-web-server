@@ -94,30 +94,32 @@ public class HttpRequest implements IHttpRequest
     public static Map<String, String> parseParams(String pParamString)
     {
         Map<String, String> map = new HashMap<>();
-        Scanner scanner = new Scanner(pParamString);
-        scanner.useDelimiter("&");
-        while (scanner.hasNext())
+        try (Scanner scanner = new Scanner(pParamString))
         {
-            String param = scanner.next();
-            int iEgal = param.indexOf('=');
-            String pName = "";
-            String pValue = "";
-            if (iEgal >= 0 && param.length() > iEgal)
+            scanner.useDelimiter("&");
+            while (scanner.hasNext())
             {
-                pName = param.substring(0, iEgal);
-                pValue = param.substring(iEgal + 1);
+                String param = scanner.next();
+                int iEgal = param.indexOf('=');
+                String pName = "";
+                String pValue = "";
+                if (iEgal >= 0 && param.length() > iEgal)
+                {
+                    pName = param.substring(0, iEgal);
+                    pValue = param.substring(iEgal + 1);
+                }
+                else if (iEgal >= 0)
+                {
+                    pName = param.substring(0, iEgal);
+                    pValue = "";
+                }
+                else
+                {
+                    pName = param;
+                    pValue = "";
+                }
+                map.put(pName, pValue);
             }
-            else if (iEgal >= 0)
-            {
-                pName = param.substring(0, iEgal);
-                pValue = "";
-            }
-            else
-            {
-                pName = param;
-                pValue = "";
-            }
-            map.put(pName, pValue);
         }
         return map;
     }

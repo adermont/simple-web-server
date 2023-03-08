@@ -1,6 +1,9 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="simple-web-server:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/simple_web_server_jar</output-path>
+    <output-path>$PROJECT_DIR$/../lord-of-simplon/lib</output-path>
+    <properties id="ant-postprocessing">
+      <options enabled="true" />
+    </properties>
     <root id="archive" name="simple-web-server.jar">
       <element id="module-output" name="simple-web-server" />
       <element id="module-source" name="simple-web-server" />

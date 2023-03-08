@@ -15,7 +15,7 @@ public class EchoRequestParameters extends AbstractHttpRequestHandler
      * @return
      */
     @Override
-    public IHttpResponse handle(IHttpRequest request) throws Exception
+    public IHttpResponse handle(IHttpRequest request, String pDocumentRoot) throws Exception
     {
         String newLine = System.lineSeparator();
         StringBuilder sb = new StringBuilder("<html><body>").append(newLine);

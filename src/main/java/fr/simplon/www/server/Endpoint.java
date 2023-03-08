@@ -9,6 +9,7 @@ package fr.simplon.www.server;
 public class Endpoint
 {
     private String              mUrl;
+    private String              mDocumentRoot;
     private IHttpRequestHandler mHandler;
 
     /**
@@ -45,6 +46,24 @@ public class Endpoint
     }
 
     /**
+     * @return Racine des documents servis par le serveur.
+     */
+    public String getDocumentRoot()
+    {
+        return mDocumentRoot;
+    }
+
+    /**
+     * Modifie la racine des documents HTML.
+     *
+     * @param pDocumentRoot Racine des documents servis par le serveur.
+     */
+    public void setDocumentRoot(String pDocumentRoot)
+    {
+        mDocumentRoot = pDocumentRoot;
+    }
+
+    /**
      * Traite une requête.
      *
      * @param request La requête à traiter.
@@ -54,6 +73,6 @@ public class Endpoint
      */
     public IHttpResponse process(IHttpRequest request) throws Exception
     {
-        return mHandler.handle(request);
+        return mHandler.handle(request, mDocumentRoot);
     }
 }

@@ -20,13 +20,23 @@ public class HttpServer
     public static final int HTTP_DEFAULT_PORT = 80;
 
     private HttpServerEndpoints mEndpoints;
+    private String              mDocumentRoot;
 
     /**
      * Constructeur.
      */
     public HttpServer()
     {
+        this(".");
+    }
+
+    /**
+     * Constructeur.
+     */
+    public HttpServer(String pDocumentRoot)
+    {
         mEndpoints = new HttpServerEndpoints();
+        mDocumentRoot = pDocumentRoot;
     }
 
     /**
@@ -145,8 +155,9 @@ public class HttpServer
      * Analyse et traitement de la requête brute.
      *
      * @param pRequest Chaîne brute de la requête au format "HTTP1.0 GET &lt;url&gt;".
-     * @param pBody Corps de la requête.
+     * @param pBody    Corps de la requête.
      * @return
+     *
      * @throws Exception
      */
     private IHttpResponse process(String pRequest, String pBody) throws Exception
@@ -185,11 +196,13 @@ public class HttpServer
      *
      * @param pIHttpRequest La requête structurée en format objet java.
      * @return Une réponse HTTP.
+     *
      * @throws Exception
      */
     private IHttpResponse process(IHttpRequest pIHttpRequest) throws Exception
     {
         Endpoint endpoint = mEndpoints.match(pIHttpRequest.getUrl());
+        endpoint.setDocumentRoot(mDocumentRoot);
         return endpoint.process(pIHttpRequest);
     }
 
