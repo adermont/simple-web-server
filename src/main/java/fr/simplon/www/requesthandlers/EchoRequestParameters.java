@@ -1,5 +1,7 @@
 package fr.simplon.www.requesthandlers;
 
+import fr.simplon.www.html.HtmlGenerator;
+import fr.simplon.www.html.HtmlPage;
 import fr.simplon.www.server.HttpResponse;
 import fr.simplon.www.server.IHttpRequest;
 import fr.simplon.www.server.IHttpResponse;
@@ -21,17 +23,22 @@ public class EchoRequestParameters extends AbstractHttpRequestHandler
     @Override
     public IHttpResponse handle(IHttpRequest request, String pDocumentRoot)
     {
-        String newLine = System.lineSeparator();
-        StringBuilder sb = new StringBuilder("<html><body>").append(newLine);
+        HtmlGenerator gen = new HtmlGenerator();
+        HtmlPage htmlPage = gen.title("Echo service").lang("fr").stylesheet("styles.css").build();
 
+        htmlPage.p("Requête : " + request.toString());
+
+        // Récupération des paramètres de la requête
         Map<String, String> parameters = request.getParameters();
         Set<Map.Entry<String, String>> entries = parameters.entrySet();
+
+        // Pour chaque paramètre de la requete, on ajoute un nouveau paragraphe
         for (Map.Entry<String, String> entry : entries)
         {
-            sb.append(entry).append("<br/>").append(newLine);
+            htmlPage.p(String.valueOf(entry));
         }
-        sb.append("<p><a href=\"/\">&lt;&lt; Revenir à l'accueil</a></p>").append(newLine);
-        sb.append("</body></html>").append(newLine);
-        return HttpResponse.textHtml(sb.toString().getBytes());
+        htmlPage.a("#", "&lt;&lt; Revenir à l'accueil");
+
+        return HttpResponse.textHtml(htmlPage.toHtmlString().getBytes());
     }
 }

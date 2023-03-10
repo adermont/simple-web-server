@@ -52,42 +52,6 @@ public class HttpRequest implements IHttpRequest
     }
 
     /**
-     * @return L'URL demandée dans la requête.
-     */
-    @Override
-    public String getUrl()
-    {
-        return mUrl;
-    }
-
-    /**
-     * @return La méthode HTTP de la requête.
-     */
-    @Override
-    public HttpMethod getMethod()
-    {
-        return mMethod;
-    }
-
-    /**
-     * @param paramName Le nom du paramètre à récupérer.
-     * @return La valeur du paramètre.
-     */
-    public String getParameter(String paramName)
-    {
-        return mParams.get(paramName);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Map<String, String> getParameters()
-    {
-        return mParams;
-    }
-
-    /**
      * Décode la chaîne de caractère brute des paramètres (la partie de l'URL).
      *
      * @param pParamString La chaine brute des paramètres.
@@ -121,6 +85,42 @@ public class HttpRequest implements IHttpRequest
     }
 
     /**
+     * @return La méthode HTTP de la requête.
+     */
+    @Override
+    public HttpMethod getMethod()
+    {
+        return mMethod;
+    }
+
+    /**
+     * @return L'URL demandée dans la requête.
+     */
+    @Override
+    public String getUrl()
+    {
+        return mUrl;
+    }
+
+    /**
+     * @param paramName Le nom du paramètre à récupérer.
+     * @return La valeur du paramètre.
+     */
+    public String getParameter(String paramName)
+    {
+        return mParams.get(paramName);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<String, String> getParameters()
+    {
+        return mParams;
+    }
+
+    /**
      * Ajoute un nouveau paramètre à la requête.
      *
      * @param rawString La chaîne brute correspondant à UN SEUL paramètre (format
@@ -141,5 +141,11 @@ public class HttpRequest implements IHttpRequest
             pName = rawString.substring(0, iEgal);
         }
         mParams.put(pName, pValue);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "HttpRequest{" + "Method=" + mMethod + ", Url='" + mUrl + '\'' + '}';
     }
 }
